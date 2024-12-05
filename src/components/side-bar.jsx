@@ -40,32 +40,7 @@ export default function SideBar() {
                     </NavLink>
                 ))}
             </nav>
-            <footer className=" flex items-center justify-center h-1/5">
-                <div className="w-64 rounded-xl bg-gray-900 p-4 r">
-                    <div className="space-y-3">
-                        <div className="flex items-start">
-                            <SparklesIcon className="h-5 w-5 text-white" aria-hidden="true" />
-                        </div>
-
-                        <div className="space-y-2">
-                            <h3 className="text-lg font-medium text-white">
-                                Configura la App
-                            </h3>
-
-                            <p className="text-sm text-blue-400">
-
-                            </p>
-                        </div>
-
-                        <button
-                            type="button"
-                            className="w-full rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900"
-                        >
-                            Preferencias
-                        </button>
-                    </div>
-                </div>
-            </footer>
+            
         </aside>
 
     </>)

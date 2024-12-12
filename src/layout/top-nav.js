@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
 import MenuIcon from '@mui/icons-material/Menu';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import {
   Avatar,
-  Badge,
   Box,
-  IconButton,
-  Stack,
-  SvgIcon,
-  Tooltip,
+  IconButton, 
   useMediaQuery
 } from '@mui/material';
 
@@ -16,6 +17,7 @@ import { AccountPopover } from './account-popover';
 
 const SIDE_NAV_WIDTH = 280;
 const TOP_NAV_HEIGHT = 64;
+
 function stringToColor(string) {
   let hash = 0;
   let i;
@@ -47,10 +49,32 @@ function stringAvatar(name) {
       children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
   };
 }
+
+function handleClick(event) {
+  event.preventDefault();
+  console.info('You clicked a breadcrumb.');
+}
+
 export const TopNav = (props) => {
   const { onNavOpen } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
   const accountPopover = usePopover();
+  const breadcrumbs = [
+    <Link underline="none" key="1" color="inherit" href="/" onClick={handleClick}>
+      Monitoreo
+    </Link>,
+    <Link
+      underline="none"
+      key="2"
+      color="inherit"
+      href="/material-ui/getting-started/installation/"
+      onClick={handleClick}
+    >
+      Transacciones
+    </Link>,
+  ];
+
+
   return (
     <>
       <Box
@@ -96,6 +120,12 @@ export const TopNav = (props) => {
             <MenuIcon />
               </IconButton>
             )}
+            <Breadcrumbs
+        separator={<NavigateNextIcon fontSize="small" />}
+        aria-label="breadcrumb"
+      >
+        {breadcrumbs}
+      </Breadcrumbs>
           </Stack>
           <Stack
             alignItems="center"

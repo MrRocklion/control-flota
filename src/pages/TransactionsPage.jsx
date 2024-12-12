@@ -30,13 +30,7 @@ export default function TransactionsPage() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [data, setData] = useState([]);
     const [date, setDate] = useState(dayjs('2024-11-12'));
-    const Item = styled(Paper)(({ theme }) => ({
-        backgroundColor: '#1A2027',
-        ...theme.typography.body2,
-        padding: theme.spacing(5),
-        color: '#fff',
-    }));
-
+ 
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -69,10 +63,9 @@ export default function TransactionsPage() {
     }, [])
     return (
         <>
-            <Box sx={{ flexGrow: 1 }}>
+            <Box sx={{ flexGrow: 1,padding:5 }}>
                 <Grid container spacing={2}>
                     <Grid size={{ xs: 12, md: 12 }} >
-                        <Item>
                             <Grid container spacing={2}>
                                 <Grid size={{ xs: 12, md: 2 }} >
                                     <LocalizationProvider  dateAdapter={AdapterDayjs}>
@@ -120,7 +113,7 @@ export default function TransactionsPage() {
                                     <Button variant="contained" fullWidth sx={{"height":"100%"}}>Limpiar</Button>
                                 </Grid>
                             </Grid>
-                        </Item>
+                       
                     </Grid>
                   
                     <Grid size={12}>
@@ -180,22 +173,22 @@ export default function TransactionsPage() {
                                             .map((row, index) => {
                                                 return (
                                                     <TableRow hover role="checkbox" tabIndex={-1} key={row.uuid}  >
-                                                        <TableCell key={index} align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell key={index} align={"center"}  >
                                                             {index + 1}
                                                         </TableCell>
-                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"} >
                                                             {row.code}
                                                         </TableCell>
-                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"} >
                                                             {row.type}
                                                         </TableCell>
-                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"}>
                                                             {row.date_card}
                                                         </TableCell>
-                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"}  >
                                                             {row.time_card}
                                                         </TableCell>
-                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"}  >
                                                             {row.cost}
                                                         </TableCell>
                                                     </TableRow>

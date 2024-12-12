@@ -53,7 +53,7 @@ export default function GpsPage() {
     }, [isConnected]);
 
     return (
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 1,padding:5 }}>
             <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 3 }}>
                     <FormControl fullWidth>

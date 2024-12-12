@@ -3,14 +3,13 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { lime, purple } from '@mui/material/colors';
 import { BrowserRouter } from "react-router";
+import 'simplebar-react/dist/simplebar.min.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
     primary: {
       main: '#1976d2',
       light: '#42a5f5',

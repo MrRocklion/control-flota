@@ -3,6 +3,9 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
     ...theme.typography.body2,

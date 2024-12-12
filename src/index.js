@@ -10,8 +10,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#FF5733',
+      main: '#1976d2',
+      light: '#42a5f5',
+      dark: '#1565c0',
+      contrastText: '#fff',
     },
     secondary: {
       main: '#E0C2FF',
@@ -26,10 +30,8 @@ const theme = createTheme({
       contrastText: '#242105',
     },
     verde:{
-     main:'#2ecc71',
-     light:'#2ecc71',
-     dark:'#2ecc71',
-     contrastText:"#2ecc71"
+     main:'#58d68d',
+   
     }
 
 

@@ -66,12 +66,7 @@ const routes = [
         href: '/transactions',
         activate: true,
     },
-    {
-        label: 'Monitoreo',
-        icon: VideoCameraIcon,
-        href: '/cameras',
-        activate: false,
-    },
+   
 
 
 ]

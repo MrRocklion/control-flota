@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
-import { useState,useEffect } from 'react';
-import {onSnapshot,query,collection } from "firebase/firestore"
+import { useState, useEffect } from 'react';
+import { onSnapshot, query, collection } from "firebase/firestore"
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid2';
@@ -13,10 +13,23 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { db } from '../firebase/firebase-config';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+
 export default function TransactionsPage() {
+    const [tipo, setTipo] = useState('0')
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [data, setData] = useState([]);
+    const [date, setDate] = useState(dayjs('2024-11-12'));
     const Item = styled(Paper)(({ theme }) => ({
         backgroundColor: '#1A2027',
         ...theme.typography.body2,
@@ -28,6 +41,7 @@ export default function TransactionsPage() {
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
+    const handleTipo = (event) => setTipo(event.target.value);
 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(+event.target.value);
@@ -46,7 +60,7 @@ export default function TransactionsPage() {
                 return dateB - dateA;
             });
             setData(sortedData)
-          });
+        });
     }
 
 
@@ -57,17 +71,58 @@ export default function TransactionsPage() {
         <>
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 4 }} >
+                    <Grid size={{ xs: 12, md: 12 }} >
                         <Item>
-                            <Button variant="contained">Traer Datos</Button>
+                            <Grid container spacing={2}>
+                                <Grid size={{ xs: 12, md: 2 }} >
+                                    <LocalizationProvider  dateAdapter={AdapterDayjs}>
+
+                                        <DatePicker
+                                            label="Fecha de Inicio"
+                                            value={date}
+                                            onChange={(newValue) => setDate(newValue)}
+                                        />
+
+                                    </LocalizationProvider>
+                                </Grid>
+                                <Grid size={{ xs: 12, md: 2 }} >
+                                    <LocalizationProvider  dateAdapter={AdapterDayjs}>
+
+                                        <DatePicker
+                                            label="Fecha Final"
+                                            value={date}
+                                            onChange={(newValue) => setDate(newValue)}
+                                        />
+
+                                    </LocalizationProvider>
+                                </Grid>
+                                <Grid size={{ xs: 12, md: 2 }} >
+                                    <FormControl fullWidth>
+                                        <InputLabel id="lineas-label">Tipo de Tarjeta</InputLabel>
+                                        <Select
+                                            labelId="lineas-label"
+                                            value={tipo}
+                                            onChange={handleTipo}
+                                            size="normal"
+                                            label="Tipo de Tarjeta"
+                                        >
+                                            <MenuItem value="0">Todas</MenuItem>
+                                            <MenuItem value="3">Especial</MenuItem>
+                                            <MenuItem value="6">Fiscalizador</MenuItem>
+
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid size={{ xs: 12, md: 2 }} >
+                                    <Button variant="contained" fullWidth sx={{"height":"100%"}}>Filtrar</Button>
+                                </Grid>
+                                <Grid size={{ xs: 12, md: 2 }} >
+                                    <Button variant="contained" fullWidth sx={{"height":"100%"}}>Limpiar</Button>
+                                </Grid>
+                            </Grid>
                         </Item>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 4 }} >
-                        <Item> <Button variant="contained">Generar Reporte</Button></Item>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <Item> <Button variant="contained">Filtrar</Button></Item>
-                    </Grid>
+                  
                     <Grid size={12}>
 
                         <div className='p-2'>
@@ -77,7 +132,7 @@ export default function TransactionsPage() {
                                         <TableRow>
                                             <TableCell
                                                 align={"center"}
-                                                style={{background: "#0C1017", color: 'white' }}
+                                                style={{ background: "#0C1017", color: 'white' }}
                                                 sx={{ borderBottomColor: "#242a37" }}
                                             >
                                                 Nro
@@ -91,28 +146,28 @@ export default function TransactionsPage() {
                                             </TableCell>
                                             <TableCell
                                                 align={"center"}
-                                                style={{  background: "#0C1017", color: 'white' }}
+                                                style={{ background: "#0C1017", color: 'white' }}
                                                 sx={{ borderBottomColor: "#242a37" }}
                                             >
                                                 Tipo
                                             </TableCell>
                                             <TableCell
                                                 align={"center"}
-                                                style={{  background: "#0C1017", color: 'white' }}
+                                                style={{ background: "#0C1017", color: 'white' }}
                                                 sx={{ borderBottomColor: "#242a37" }}
                                             >
                                                 Dia
                                             </TableCell>
                                             <TableCell
                                                 align={"center"}
-                                                style={{  background: "#0C1017", color: 'white' }}
+                                                style={{ background: "#0C1017", color: 'white' }}
                                                 sx={{ borderBottomColor: "#242a37" }}
                                             >
                                                 Hora
                                             </TableCell>
                                             <TableCell
                                                 align={"center"}
-                                                style={{  background: "#0C1017", color: 'white' }}
+                                                style={{ background: "#0C1017", color: 'white' }}
                                                 sx={{ borderBottomColor: "#242a37" }}
                                             >
                                                 Costo
@@ -125,22 +180,22 @@ export default function TransactionsPage() {
                                             .map((row, index) => {
                                                 return (
                                                     <TableRow hover role="checkbox" tabIndex={-1} key={row.uuid}  >
-                                                    <TableCell key={index} align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
-                                                            {index+1}
+                                                        <TableCell key={index} align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                            {index + 1}
                                                         </TableCell>
-                                                        <TableCell  align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
                                                             {row.code}
                                                         </TableCell>
                                                         <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
                                                             {row.type}
                                                         </TableCell>
-                                                        <TableCell  align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
                                                             {row.date_card}
                                                         </TableCell>
-                                                        <TableCell  align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
                                                             {row.time_card}
                                                         </TableCell>
-                                                        <TableCell  align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
+                                                        <TableCell align={"center"} sx={{ borderBottomColor: "#242a37", color: "white" }} >
                                                             {row.cost}
                                                         </TableCell>
                                                     </TableRow>
@@ -157,7 +212,7 @@ export default function TransactionsPage() {
                                 page={page}
                                 onPageChange={handleChangePage}
                                 onRowsPerPageChange={handleChangeRowsPerPage}
-                                sx={{background: "#0C1017", color: 'white'}}
+                                sx={{ background: "#0C1017", color: 'white' }}
                             />
 
                         </div>

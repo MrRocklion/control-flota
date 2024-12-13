@@ -1,11 +1,12 @@
-
-import { SvgIcon } from '@mui/material';
+import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import TabletAndroidIcon from '@mui/icons-material/TabletAndroid';
 import {
   HomeIcon,
   MapIcon,
   BanknotesIcon,
   MegaphoneIcon,
-  ArchiveBoxIcon,
+  AdjustmentsVerticalIcon,
   ComputerDesktopIcon,
   CalendarDateRangeIcon,
   ArrowPathIcon
@@ -53,6 +54,29 @@ export const items = [
         title:'Rutas',
         path:'/operaciones/rutas',
         icon:ArrowPathIcon
+      }
+    ]
+  },
+  {
+    title: 'Administracion',
+    path: '/administracion',
+    icon: AdjustmentsVerticalIcon,
+    child:true,
+    childrens:[
+      {
+        title:'Vehiculos',
+        path:'/administracion/vehiculos',
+        icon:DirectionsBusIcon
+      },
+      {
+        title:'Equipos de Recaudo',
+        path:'/administracion/Equipos de Recaudo',
+        icon:PointOfSaleIcon
+      },
+      {
+        title:'Equipos de Validacion',
+        path:'/administracion/Equipos de Validacion',
+        icon:TabletAndroidIcon
       }
     ]
   },

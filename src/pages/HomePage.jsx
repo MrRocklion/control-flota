@@ -21,22 +21,8 @@ export default function HomePage() {
 
     return (
         <>
-            <Box sx={{ flexGrow: 1 }}>
-                <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 4 }} >
-                        <Item>size=8</Item>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 4 }} >
-                        <Item>size=4</Item>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <Item>size=4</Item>
-                    </Grid>
-                    <Grid size={12}>
-                        <Item>size=8</Item>
-                    </Grid>
-                    
-                </Grid>
+            <Box sx={{ flexGrow: 1,p:5 }}>
+                
             </Box>
         </>
     )

@@ -1,48 +1,35 @@
 
 import { useLocation, NavLink } from 'react-router';
 import PropTypes from 'prop-types';
-import { ChevronDownIcon, ChevronRightIcon ,ChevronUpDownIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronRightIcon  } from '@heroicons/react/24/outline';
 import {
 	Box,
-	Button,
 	Divider,
 	Drawer,
 	Stack,
-	SvgIcon,
-	Typography,
 	useMediaQuery
 } from '@mui/material';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import DraftsIcon from '@mui/icons-material/Drafts';
-import SendIcon from '@mui/icons-material/Send';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import StarBorder from '@mui/icons-material/StarBorder';
 import { items } from './config';
-import { items_views } from './config-views';
-import { SideNavItem } from './side-nav-item';
 import { Scrollbar } from '../components/scrollbar';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import React from 'react';
 export const SideNav = (props) => {
 	const { open, onClose } = props;
 	const location = useLocation();
 	const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
-
+	const [expanded, setExpanded] = React.useState(false);
 
 	const [listMenu, setListMenu] = React.useState(true);
 
-	const handleClick = () => {
-		setListMenu(!listMenu);
-	};
+	const [openCollapse, setOpenCollapse] = React.useState({});
 
+	const toggleCollapse = (id) => {
+		setOpenCollapse((prev) => ({
+		  ...prev,
+		  [id]: !prev[id], // Alterna el estado del colapsable específico
+		}));
+	  };
 
 	const content = (
 		<Scrollbar
@@ -109,8 +96,7 @@ export const SideNav = (props) => {
 										className={
 											`cursor-pointer group flex justify-start items-center rounded-md px-2 py-2 text-lg font-medium text-gray-300 hover:bg-gray-700 hover:text-green-400  ${location.pathname === item.path ? 'bg-gray-700 text-white' : ''}`
 										}
-										
-										onClick={handleClick}
+										onClick={() => toggleCollapse(item.title)}
 									>
 									
 										
@@ -122,10 +108,10 @@ export const SideNav = (props) => {
 										/>
 											
 											<ListItemText primary={item.title} />
-											{listMenu ? <ChevronDownIcon style={{height:30}}/>: <ChevronRightIcon style={{height:30}} /> }
+											{openCollapse[item.title] ? <ChevronDownIcon style={{height:30}}/>: <ChevronRightIcon style={{height:30}} /> }
 									
 										</div>
-										<Collapse in={listMenu}  timeout="auto" unmountOnExit >
+										<Collapse in={openCollapse[item.title]}  timeout="auto" unmountOnExit >
 										{item.childrens.map((x,index)=>{
 											return(
 												<NavLink

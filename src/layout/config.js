@@ -1,6 +1,7 @@
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import TabletAndroidIcon from '@mui/icons-material/TabletAndroid';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 import {
   HomeIcon,
   MapIcon,
@@ -69,13 +70,13 @@ export const items = [
         icon:DirectionsBusIcon
       },
       {
-        title:'Equipos de Recaudo',
-        path:'/administracion/Equipos de Recaudo',
-        icon:PointOfSaleIcon
+        title:'Socios',
+        path:'/administracion/socios',
+        icon:Diversity3Icon
       },
       {
-        title:'Equipos de Validacion',
-        path:'/administracion/Equipos de Validacion',
+        title:'Equipos',
+        path:'/administracion/equipos',
         icon:TabletAndroidIcon
       }
     ]

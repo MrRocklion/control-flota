@@ -20,7 +20,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc,query, collection ,onSnapshot } from "firebase/firestore"; 
+import { doc, setDoc,query, collection ,getDocs } from "firebase/firestore"; 
 import { db } from '../../firebase/firebase-config';
 
 
@@ -40,7 +40,8 @@ export default function VehiculosPage() {
     const [placa,setPlaca] = useState('');
     const [modelo,setModelo] = useState('');
     const [socio,setSocio] = useState();
-    const [vehicles,setVehicles] = useState([])
+    const [vehicles,setVehicles] = useState([]);
+    const [socios,setSocios] = useState([]);
 
     const handleGrupo = (event) => {
       setGrupo(event.target.value);
@@ -56,19 +57,19 @@ export default function VehiculosPage() {
     const createVehicle = async() => {
         const uuid = uuidv4();
         const newData = {
-            registro:registro,
-            socio:{id: socio.uuid,nombre:socio.nombres},
-            latitud:0,
-            longitud:0,
+            registro:socio.register,
+            socio:{id: socio.uuid,nombre:socio.names},
+            latitud:-3.9986953575376636,
+            longitud:-79.20557380361966,
             ultima_con:0,
             grupo:grupo,
             empresa:empresa,
-            id:'rt'+registro.toString(),
+            place:'rt'+registro.toString(),
             linea:linea,
             marca:marca,
-            modelo:modelo,
-            chasis:chasis,
-            placa:placa,
+            modelo:modelo.toUpperCase(),
+            chasis:chasis.toUpperCase(),
+            placa:placa.toUpperCase(),
             estado:0,
             carroceria:carroceria,
             uuid:uuid,
@@ -84,20 +85,30 @@ export default function VehiculosPage() {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
-    const getData = async () => {
-            const reference = query(collection(db, "unidades"));
-            onSnapshot(reference, (querySnapshot) => {
-                const aux_data = [];
-                querySnapshot.forEach((doc) => {
-                    aux_data.push(doc.data());
-                });
-                const sortedData = aux_data.sort((a, b) => {
-                    const register_a = parseInt(a.registro)
-                    const register_b = parseInt(b.registro)
-                    return register_a - register_b;
-                });
-                setVehicles(sortedData)
+    const getData =  async() => {
+            const aux_personal = [];
+            const querySnapshot2 = await getDocs(collection(db, "personal"));
+            querySnapshot2.forEach((doc) => {
+                aux_personal.push(doc.data());
             });
+
+            const socios_filter =  aux_personal.filter((item)=> item.job === 1);
+            console.log(socios_filter)
+            setSocios(socios_filter)
+            //
+
+            const aux_data = [];
+            const querySnapshot = await getDocs(collection(db, "unidades"));
+            querySnapshot.forEach((doc) => {
+                aux_data.push(doc.data());
+            });
+            const sortedData = aux_data.sort((a, b) => {
+                const register_a = parseInt(a.registro)
+                const register_b = parseInt(b.registro)
+                return register_a - register_b;
+            });
+            setVehicles(sortedData)
+           
         }
     const procesarEmpresa =(_data)=>{
         if(_data == 1){
@@ -117,13 +128,16 @@ export default function VehiculosPage() {
         }
     }
    useEffect(() => {
-          getData();
+         
       }, [])
 
     return (
         <>
             <Box sx={{ flexGrow: 1, p: 5 }}>
                 <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, md: 2 }}>
+                        <button type="button" onClick={getData} className="w-full px-5 py-2.5 text-sm font-medium text-white bg-amber-600 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 rounded-lg text-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">Traer Datos </button>
+                    </Grid>
                     <Grid size={{ xs: 12, md: 3 }}>
                         <button type="button" onClick={openDialogVehicle} className="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Agregar Nuevo Vehiculo </button>
                     </Grid>
@@ -229,17 +243,8 @@ export default function VehiculosPage() {
                 </DialogTitle>
                 <DialogContent dividers>
                     <Grid container spacing={2}>
-                        <Grid size={{ xs: 12, md: 4 }}>
-                            <TextField
-                                label="Registro Municipal"
-                                id="outlined-size-small"
-                                size="small"
-                                value={registro}
-                                onChange={(event)=>{setRegistro(event.target.value)}}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 8 }}>
+                    
+                        <Grid size={{ xs: 12, md: 12 }}>
                             <Autocomplete
                                 value={socio}
                                 onChange={(event, newValue) => {
@@ -247,8 +252,8 @@ export default function VehiculosPage() {
                                 }}
                                 size='small'
                                 id="controllable-states-demo"
-                                options={test_options}
-                                getOptionLabel={(option) => option.nombres}
+                                options={socios}
+                                getOptionLabel={(option) => option.names}
                                 renderInput={(params) => <TextField {...params} label="Seleccione un socio" />}
                             />
                         </Grid>

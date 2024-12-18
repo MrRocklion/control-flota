@@ -30,7 +30,6 @@ export default function VehiculosPage() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [grupo, setGrupo] = useState(1);
-    const [empresa, setEmpresa] = useState(1);
     const [linea, setLinea] = useState(1);
     const [marca,setMarca] = useState(1);
     const [carroceria,setCarroceria] = useState(1);
@@ -42,40 +41,42 @@ export default function VehiculosPage() {
     const [socio,setSocio] = useState();
     const [vehicles,setVehicles] = useState([]);
     const [socios,setSocios] = useState([]);
+    const [habilited,setHabilited] = useState(true);
 
     const handleGrupo = (event) => {
       setGrupo(event.target.value);
     };
     const handleLinea = (event) => setLinea(event.target.value);
-    const handleEmpresa = (event) => setEmpresa(event.target.value);
+
     const handleMarca = (event) => setMarca(event.target.value);
     const handleCarroceria = (event) => setCarroceria(event.target.value);
     const openDialogVehicle = () => setDialogVehicle(true);
     const closeDialogVehicle = () => setDialogVehicle(false);
+    
 
   
     const createVehicle = async() => {
         const uuid = uuidv4();
         const newData = {
-            registro:socio.register,
-            socio:{id: socio.uuid,nombre:socio.names},
-            latitud:-3.9986953575376636,
-            longitud:-79.20557380361966,
-            ultima_con:0,
-            grupo:grupo,
-            empresa:empresa,
-            place:'rt'+registro.toString(),
-            linea:linea,
-            marca:marca,
-            modelo:modelo.toUpperCase(),
-            chasis:chasis.toUpperCase(),
-            placa:placa.toUpperCase(),
-            estado:0,
-            carroceria:carroceria,
+            register:socio.register,
+            partner:{id: socio.uuid,names:socio.names},
+            lat:-3.9986953575376636,
+            lon:-79.20557380361966,
+            last_con:0,
+            group:grupo,
+            company:socio.company,
+            place:'rt'+socio.register,
+            line:linea,
+            trademark:marca,
+            model:modelo.toUpperCase(),
+            chassis:chasis.toUpperCase(),
+            plate:placa.toUpperCase(),
+            state:0,
+            bodywork:carroceria,
             uuid:uuid,
         }
         console.log(newData);
-        await setDoc(doc(db, "unidades", uuid),newData);
+        await setDoc(doc(db, "vehicles", uuid),newData);
         setDialogVehicle(false)
     }   
     const handleChangePage = (event, newPage) => {
@@ -93,12 +94,16 @@ export default function VehiculosPage() {
             });
 
             const socios_filter =  aux_personal.filter((item)=> item.job === 1);
-            console.log(socios_filter)
-            setSocios(socios_filter)
+            const sortedSocios = socios_filter.sort((a, b) => {
+                const register_a = parseInt(a.register)
+                const register_b = parseInt(b.register)
+                return register_a - register_b;
+            });
+            setSocios(sortedSocios)
             //
 
             const aux_data = [];
-            const querySnapshot = await getDocs(collection(db, "unidades"));
+            const querySnapshot = await getDocs(collection(db, "vehicles"));
             querySnapshot.forEach((doc) => {
                 aux_data.push(doc.data());
             });
@@ -108,6 +113,7 @@ export default function VehiculosPage() {
                 return register_a - register_b;
             });
             setVehicles(sortedData)
+            setHabilited(false)
            
         }
     const procesarEmpresa =(_data)=>{
@@ -139,7 +145,7 @@ export default function VehiculosPage() {
                         <button type="button" onClick={getData} className="w-full px-5 py-2.5 text-sm font-medium text-white bg-amber-600 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 rounded-lg text-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">Traer Datos </button>
                     </Grid>
                     <Grid size={{ xs: 12, md: 3 }}>
-                        <button type="button" onClick={openDialogVehicle} className="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Agregar Nuevo Vehiculo </button>
+                        <button type="button" onClick={openDialogVehicle} hidden={habilited} className="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Agregar Nuevo Vehiculo </button>
                     </Grid>
                     <Grid size={12}>
                         <div className='p-2'>
@@ -201,19 +207,19 @@ export default function VehiculosPage() {
                                                             {index + 1}
                                                         </TableCell>
                                                         <TableCell align={"center"} >
-                                                            {row.registro}
+                                                            {row.register}
                                                         </TableCell>
                                                         <TableCell align={"center"} >
-                                                            {procesarEmpresa(row.empresa)}
+                                                            {procesarEmpresa(row.company)}
                                                         </TableCell>
                                                         <TableCell align={"center"}>
-                                                            {row.socio.nombre}
+                                                            {row.partner.names}
                                                         </TableCell>
                                                         <TableCell align={"center"}  >
-                                                            {procesarEstado(row.estado)}
+                                                            {procesarEstado(row.state)}
                                                         </TableCell>
                                                         <TableCell align={"center"}  >
-                                                            L{row.linea}
+                                                            L{row.line}
                                                         </TableCell>
                                                     </TableRow>
                                                 );
@@ -244,7 +250,7 @@ export default function VehiculosPage() {
                 <DialogContent dividers>
                     <Grid container spacing={2}>
                     
-                        <Grid size={{ xs: 12, md: 12 }}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <Autocomplete
                                 value={socio}
                                 onChange={(event, newValue) => {
@@ -253,8 +259,8 @@ export default function VehiculosPage() {
                                 size='small'
                                 id="controllable-states-demo"
                                 options={socios}
-                                getOptionLabel={(option) => option.names}
-                                renderInput={(params) => <TextField {...params} label="Seleccione un socio" />}
+                                getOptionLabel={(option) => option.register}
+                                renderInput={(params) => <TextField {...params} label="Registro" />}
                             />
                         </Grid>
                         <Grid size={{ xs: 12, md: 4 }}>
@@ -272,23 +278,7 @@ export default function VehiculosPage() {
                             </Select>
                             </FormControl>
                         </Grid>
-                        <Grid size={{ xs: 12, md: 4 }}>
-                            <FormControl fullWidth size="small">
-                            <InputLabel id="demo-select-small-label">Empresa</InputLabel>
-                            <Select
-                                labelId="demo-select-small-label"
-                                id="demo-select-small"
-                                value={empresa}
-                                label="Empresa"
-                                onChange={handleEmpresa}
-                            >
-                                <MenuItem value={1}>URBASUR</MenuItem>
-                                <MenuItem value={2}>URBAEXPRESS</MenuItem>
-                                <MenuItem value={3}>CUXIBAMBA</MenuItem>
-                                <MenuItem value={4}>24 DE MAYO</MenuItem>
-                            </Select>
-                            </FormControl>
-                        </Grid>
+                       
                         <Grid size={{ xs: 12, md: 4 }}>
                             <FormControl fullWidth size="small">
                             <InputLabel id="demo-select-small-label">Linea</InputLabel>

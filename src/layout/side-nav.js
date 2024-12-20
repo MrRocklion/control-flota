@@ -18,10 +18,6 @@ export const SideNav = (props) => {
 	const { open, onClose } = props;
 	const location = useLocation();
 	const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
-	const [expanded, setExpanded] = React.useState(false);
-
-	const [listMenu, setListMenu] = React.useState(true);
-
 	const [openCollapse, setOpenCollapse] = React.useState({});
 
 	const toggleCollapse = (id) => {

@@ -56,7 +56,7 @@ export default function TransactionsPage() {
         });
     }
     const procesarTarjeta =(tipo)=>{
-        if(tipo == 6){
+        if(tipo === 6){
             return "Fiscalizador"
         }else{
             return "Tarifa General"

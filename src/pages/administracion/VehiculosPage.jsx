@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react';
+import { useState,useEffect, useRef } from 'react';
 import Grid from '@mui/material/Grid2';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -20,11 +20,17 @@ import Autocomplete from '@mui/material/Autocomplete';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc,query, collection ,getDocs } from "firebase/firestore"; 
+import { doc, setDoc,updateDoc, collection ,getDocs } from "firebase/firestore"; 
 import { db } from '../../firebase/firebase-config';
+import Swal from 'sweetalert2';
+import Menu from '@mui/material/Menu';
+import IconButton from '@mui/material/IconButton';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import BlockIcon from '@mui/icons-material/Block';
+import { styled, alpha } from '@mui/material/styles';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 
-
-const data = []
 export default function VehiculosPage() {
     const [dialogVehicle, setDialogVehicle] = useState(false);
     const [page, setPage] = useState(0);
@@ -33,7 +39,6 @@ export default function VehiculosPage() {
     const [linea, setLinea] = useState(1);
     const [marca,setMarca] = useState(1);
     const [carroceria,setCarroceria] = useState(1);
-    const [registro,setRegistro] = useState('');
     const [asientos,setAsientos] = useState(0);
     const [chasis,setChasis] = useState('');
     const [placa,setPlaca] = useState('');
@@ -42,43 +47,93 @@ export default function VehiculosPage() {
     const [vehicles,setVehicles] = useState([]);
     const [socios,setSocios] = useState([]);
     const [habilited,setHabilited] = useState(true);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [currentVehicle,setCurrentVehicle] = useState({})
+    const [dialogEdit,setDialogEdit] = useState(false);
+    const allData = useRef([])
+    const open = Boolean(anchorEl);
 
-    const handleGrupo = (event) => {
-      setGrupo(event.target.value);
+    const handleClick = (event,_data) => {
+        setAnchorEl(event.currentTarget);
+        setCurrentVehicle(_data);
+        setChasis(_data.chassis);
+        setPlaca(_data.plate)
+        setModelo(_data.model)
     };
+
+    const handleClose = () => {setAnchorEl(null); };
     const handleLinea = (event) => setLinea(event.target.value);
 
     const handleMarca = (event) => setMarca(event.target.value);
     const handleCarroceria = (event) => setCarroceria(event.target.value);
     const openDialogVehicle = () => setDialogVehicle(true);
-    const closeDialogVehicle = () => setDialogVehicle(false);
+    const closedialogEdit =()=> setDialogEdit(false);
+    const closeDialogVehicle = () => {setDialogVehicle(false)};
     
-
+    const editarVehiculo=()=>{
+        handleClose();
+        setDialogEdit(true);
+    }
   
     const createVehicle = async() => {
         const uuid = uuidv4();
-        const newData = {
-            register:socio.register,
-            partner:{id: socio.uuid,names:socio.names},
-            lat:-3.9986953575376636,
-            lon:-79.20557380361966,
-            last_con:0,
-            group:grupo,
-            company:socio.company,
-            place:'rt'+socio.register,
-            line:linea,
-            trademark:marca,
-            model:modelo.toUpperCase(),
-            chassis:chasis.toUpperCase(),
-            plate:placa.toUpperCase(),
-            state:0,
-            bodywork:carroceria,
-            uuid:uuid,
+        const is_exist = allData.current.some(obj => obj.register === socio.register);
+        if(is_exist === false){
+           
+            const newData = {
+                register:socio.register,
+                partner:{id: socio.uuid,names:socio.names},
+                lat:-3.9986953575376636,
+                lon:-79.20557380361966,
+                last_con:0,
+                group:grupo,
+                company:socio.company,
+                place:'rt'+socio.register,
+                line:linea,
+                trademark:marca,
+                model:modelo.toUpperCase(),
+                chassis:chasis.toUpperCase(),
+                plate:placa.toUpperCase(),
+                state:0,
+                bodywork:carroceria,
+                uuid:uuid,
+            }
+            allData.current.push(newData)
+            const sortedData = allData.current.sort((a, b) => {
+                const register_a = parseInt(a.register)
+                const register_b = parseInt(b.register)
+                return register_a - register_b;
+            });
+            setVehicles(sortedData)
+            console.log(newData);
+            await setDoc(doc(db, "vehicles", uuid),newData);
+            setDialogVehicle(false)
+            Swal.fire({
+                title: "Agregado",
+                text: "Vehiculo Agregado Correctamente",
+                icon: "success"
+              });
+        }else{
+            Swal.fire({
+                title: "Atencion",
+                text: "Ya Existe ese vehiculo",
+                icon: "warning"
+              });
         }
-        console.log(newData);
-        await setDoc(doc(db, "vehicles", uuid),newData);
-        setDialogVehicle(false)
-    }   
+        
+    }
+
+    const actualizarDatos = async()=>{
+        
+        setDialogEdit(false);
+        const washingtonRef = doc(db, "vehicles", currentVehicle.uuid);
+        await updateDoc(washingtonRef, {
+            chassis: chasis,
+            plate: placa,
+            model:modelo
+            });
+    }
+       
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
@@ -108,25 +163,32 @@ export default function VehiculosPage() {
                 aux_data.push(doc.data());
             });
             const sortedData = aux_data.sort((a, b) => {
-                const register_a = parseInt(a.registro)
-                const register_b = parseInt(b.registro)
+                const register_a = parseInt(a.register)
+                const register_b = parseInt(b.register)
                 return register_a - register_b;
             });
             setVehicles(sortedData)
+            allData.current = sortedData
             setHabilited(false)
            
         }
-    const procesarEmpresa =(_data)=>{
-        if(_data == 1){
-            return "urbasur"
-        }else{
-            return "no especifico"
+        const formatedEmpresa = (_data) => {
+            if (_data === 1) {
+                return "Urbasur"
+            } else if (_data === 2) {
+                return "Urba Express"
+            }
+            else if (_data === 3) {
+                return "Cuxibamba"
+            }
+            else {
+                return "24 de Mayo"
+            }
         }
-    }
     const procesarEstado =(_data)=>{
-        if(_data == 0){
+        if(_data === 0){
             return "inactivo"
-        }else if(_data == 1){
+        }else if(_data === 1){
             return "activo"
         }
         else{
@@ -179,6 +241,13 @@ export default function VehiculosPage() {
                                                 style={{ background: "#0C1017", color: 'white' }}
                                                 sx={{ borderBottomColor: "#242a37" }}
                                             >
+                                                Grupo
+                                            </TableCell>
+                                            <TableCell
+                                                align={"center"}
+                                                style={{ background: "#0C1017", color: 'white' }}
+                                                sx={{ borderBottomColor: "#242a37" }}
+                                            >
                                                 Socio
                                             </TableCell>
                                             <TableCell
@@ -195,6 +264,13 @@ export default function VehiculosPage() {
                                             >
                                                 Linea
                                             </TableCell>
+                                            <TableCell
+                                                align={"center"}
+                                                style={{ background: "#0C1017", color: 'white' }}
+                                                sx={{ borderBottomColor: "#242a37" }}
+                                            >
+                                                
+                                            </TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -209,8 +285,12 @@ export default function VehiculosPage() {
                                                         <TableCell align={"center"} >
                                                             {row.register}
                                                         </TableCell>
+                                                       
                                                         <TableCell align={"center"} >
-                                                            {procesarEmpresa(row.company)}
+                                                            {formatedEmpresa(row.company)}
+                                                        </TableCell>
+                                                        <TableCell align={"center"} >
+                                                            {row.group}
                                                         </TableCell>
                                                         <TableCell align={"center"}>
                                                             {row.partner.names}
@@ -221,6 +301,42 @@ export default function VehiculosPage() {
                                                         <TableCell align={"center"}  >
                                                             L{row.line}
                                                         </TableCell>
+                                                        <TableCell align={"center"}  >
+                                                                <IconButton
+                                                                        id="demo-customized-button"
+                                                                        aria-controls={open ? 'demo-customized-menu' : undefined}
+                                                                        aria-haspopup="true"
+                                                                        aria-expanded={open ? 'true' : undefined}
+                                                                        variant="contained"
+                                                                        disableElevation
+                                                                        onClick={(e)=>{handleClick(e,row)}}
+                                                                    >
+                                                                    <MoreVertIcon />
+                                                                </IconButton>
+                                                                <StyledMenu
+                                                                    id="demo-customized-menu"
+                                                                    MenuListProps={{
+                                                                        'aria-labelledby': 'demo-customized-button',
+                                                                    }}
+                                                                    anchorEl={anchorEl}
+                                                                    open={open}
+                                                                    onClose={handleClose}
+                                                                >
+                                                                    <MenuItem onClick={editarVehiculo} disableRipple>
+                                                                        <EditIcon />
+                                                                        Editar
+                                                                    </MenuItem>
+                                                                    <MenuItem onClick={handleClose} disableRipple>
+                                                                        <AnalyticsIcon />
+                                                                        Mas Informacion
+                                                                    </MenuItem>
+                                                                    <MenuItem onClick={handleClose} disableRipple>
+                                                                        <BlockIcon />
+                                                                        Deshabilitar
+                                                                    </MenuItem>
+                                                                </StyledMenu>
+                                                        </TableCell>
+
                                                     </TableRow>
                                                 );
                                             })}
@@ -243,13 +359,12 @@ export default function VehiculosPage() {
                 </Grid>
             </Box>
 
-            <Dialog onClose={closeDialogVehicle} open={dialogVehicle} fullWidth maxWidth={"sm"} >
+            <Dialog sx={{zIndex:9}}  onClose={closeDialogVehicle} open={dialogVehicle} fullWidth maxWidth={"sm"} >
                 <DialogTitle>
-                    <h5 className='font-sans font-bold text-gray-700 text-center'>Cree un Nuevo vehiculo</h5>
+                    <h5  className='font-sans font-bold text-gray-700 text-center'>Crear Nuevo Vehiculo</h5>
                 </DialogTitle>
                 <DialogContent dividers>
                     <Grid container spacing={2}>
-                    
                         <Grid size={{ xs: 12, md: 4 }}>
                             <Autocomplete
                                 value={socio}
@@ -271,7 +386,7 @@ export default function VehiculosPage() {
                                 id="demo-select-small"
                                 value={grupo}
                                 label="Grupo"
-                                onChange={handleGrupo}
+                                onChange={(e)=>{setGrupo(e.target.value)}}
                             >
                                 <MenuItem value={1}>Grupo 1</MenuItem>
                                 <MenuItem value={2}>Grupo 2</MenuItem>
@@ -400,48 +515,74 @@ export default function VehiculosPage() {
                     </Stack>
                 </DialogActions>
             </Dialog>
+            
+            <Dialog sx={{zIndex:1001}}  onClose={closedialogEdit} open={dialogEdit} fullWidth maxWidth={"xs"} >
+                <DialogTitle>
+                    <h5  className='font-sans font-bold text-gray-700 text-center'>Editar Unidad - {currentVehicle.register}</h5>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Grid container spacing={2}>
+                        <Grid size={12}>
+                            <TextField fullWidth value={chasis} onChange={(e)=>{setChasis(e.target.value)}} id="outlined-basic" size='small' label="chasis" variant="outlined" />
+                        </Grid>
+                        <Grid size={12}>
+                            <TextField fullWidth value={placa}  onChange={(e)=>{setPlaca(e.target.value)}} id="outlined-basic" size='small' label="placa" variant="outlined" />
+                        </Grid>
+                        <Grid size={12}>
+                            <TextField fullWidth value={modelo} onChange={(e)=>{setModelo(e.target.value)}} id="outlined-basic" size='small' label="modelo" variant="outlined" />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Stack direction={"row"} gap={2}>
+                        <button type="button" onClick={actualizarDatos} className="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Actualizar</button>
+                        <button type="button" onClick={closedialogEdit} className="px-5 py-2.5 text-sm font-medium text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Cerrar </button>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </>
     );
 
 }
-const test_options = [
-    {
-        nombres:"JOAN DAVID ENCARNACION DIAZ",
-        empresa:"URBASUR",
-        ci:1104598782,
-        tlfn:"0937887589",
-        email:"none",
-        tlfnos_aux:["098496565","0998465","46549878979879"],
-        uuid:"sadasdsa-ewqadsfsa-8d4s5ad-asd8sad",
-        direccion:"av las orquideas 15-78",
-        fecha_nacimiento:"19/07/1999",
-        cargo:0,
-        habilitado:true
+
+const StyledMenu = styled((props) => (
+    <Menu
+        elevation={0}
+        anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+        }}
+        transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+        }}
+        {...props}
+    />
+))(({ theme }) => ({
+    '& .MuiPaper-root': {
+        borderRadius: 6,
+        marginTop: theme.spacing(1),
+        minWidth: 180,
+        color: 'rgb(55, 65, 81)',
+        boxShadow: 'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
+        '& .MuiMenu-list': {
+            padding: '4px 0',
+        },
+        '& .MuiMenuItem-root': {
+            '& .MuiSvgIcon-root': {
+                fontSize: 18,
+                color: theme.palette.text.secondary,
+                marginRight: theme.spacing(1.5),
+            },
+            '&:active': {
+                backgroundColor: alpha(
+                    theme.palette.primary.main,
+                    theme.palette.action.selectedOpacity,
+                ),
+            },
+        },
+        ...theme.applyStyles('dark', {
+            color: theme.palette.grey[300],
+        }),
     },
-    {
-        nombres:"JUAN JOSE PARDO ZAMORA",
-        empresa:"URBASUR",
-        ci:1104598782,
-        tlfn:"0937887589",
-        email:"none",
-        tlfnos_aux:["098496565","0998465","46549878979879"],
-        uuid:"sadasdsa-ewqadsfsa-8d4s5ad-asd8sad",
-        direccion:"av las orquideas 15-78",
-        fecha_nacimiento:"19/07/1999",
-        cargo:0,
-        habilitado:true
-    },
-    {
-        nombres:"JORGE DAVID MARTINEZ CABRERA",
-        empresa:"URBASUR",
-        ci:1104598782,
-        tlfn:"0937887589",
-        email:"none",
-        tlfnos_aux:["098496565","0998465","46549878979879"],
-        uuid:"sadasdsa-ewqadsfsa-8d4s5ad-asd8sad",
-        direccion:"av las orquideas 15-78",
-        fecha_nacimiento:"19/07/1999",
-        cargo:0,
-        habilitado:true
-    }
-]
+}));

@@ -1,4 +1,4 @@
-import { styled } from '@mui/material/styles';
+
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid2';
@@ -6,7 +6,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import ActiveMarker from '../assets/active_2.png';
-import InactiveMarker from '../assets/inactive.png';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -35,22 +34,24 @@ export default function GpsPage() {
 
     const handleLineas = (event) => setLineas(event.target.value);
     const handleUnidad = (event) => setUnidad(event.target.value);
-
+ 
     useEffect(() => {
         let unsub;
         if (isConnected) {
-            unsub = onSnapshot(doc(db, 'unidades', unidad), (doc) => {
-                const data = doc.data();
-                if (data) {
-                    setTarget({
-                        latitud: data.latitud,
-                        longitud: data.longitud,
-                    });
-                }
-            });
+          
+            unsub = onSnapshot(doc(db, 'unidades', unidad), (doc) => {     
+                const data = doc.data();   
+                if (data) {   
+                    setTarget({   
+                        latitud: data.latitud,    
+                        longitud: data.longitud,   
+                    });   
+                }   
+            });   
+           
         }
-        return () => unsub && unsub(); // Cancelar suscripción al desmontar
-    }, [isConnected]);
+        return () => unsub && unsub();// eslint-disable-next-line
+    }, [isConnected]);    
 
     return (
         <Box sx={{ flexGrow: 1,padding:5 }}>

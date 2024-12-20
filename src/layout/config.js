@@ -1,5 +1,4 @@
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
-import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import TabletAndroidIcon from '@mui/icons-material/TabletAndroid';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import {
@@ -12,7 +11,6 @@ import {
   CalendarDateRangeIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline'
-import { icon } from 'leaflet';
 export const items = [
   {
     title: 'Home',

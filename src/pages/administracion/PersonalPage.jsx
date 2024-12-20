@@ -59,7 +59,6 @@ export default function PersonalPage() {
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const openDialogSocio = () => setDialogSocio(true);
 
     const createSocio =()=>{
         setNombres('')
@@ -123,12 +122,12 @@ export default function PersonalPage() {
         });
     }
     const formatedEmpresa = (_data) => {
-        if (_data == 1) {
+        if (_data === 1) {
             return "Urbasur"
-        } else if (_data == 2) {
+        } else if (_data === 2) {
             return "Urba Express"
         }
-        else if (_data == 3) {
+        else if (_data === 3) {
             return "Cuxibamba"
         }
         else {
@@ -136,15 +135,15 @@ export default function PersonalPage() {
         }
     }
     const formatedJob = (_data) => {
-        if (_data == 1) {
+        if (_data === 1) {
             return "Socio"
-        } else if (_data == 2) {
+        } else if (_data === 2) {
             return "Monitoreo"
         }
-        else if (_data == 3) {
+        else if (_data === 3) {
             return "Taller"
         }
-        else if (_data == 4) {
+        else if (_data === 4) {
             return "Chofer"
         }
         else {

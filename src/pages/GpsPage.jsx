@@ -10,11 +10,13 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { useState, useEffect } from 'react';
-import { onSnapshot, doc } from 'firebase/firestore';
+import { useState, useEffect, useRef } from 'react';
+import { onSnapshot, doc,getDocs,collection } from 'firebase/firestore';
 import { Button } from '@mui/material';
 import { db } from '../firebase/firebase-config';
 import { useMap } from 'react-leaflet';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const ActiveIcon = L.icon({
     iconUrl: ActiveMarker,
@@ -25,8 +27,12 @@ const ActiveIcon = L.icon({
 
 export default function GpsPage() {
     const [lineas, setLineas] = useState('L1');
-    const [unidad, setUnidad] = useState('rt1505');
+    const [unidad, setUnidad] = useState({});
+    const [download,setDownload] = useState(true);
     const [isConnected, setIsConnected] = useState(false);
+    const allData = useRef([]);
+    const [vehicles,setVehicles] =useState([]);
+    const [connected,setConnected] = useState(false)
     const [target, setTarget] = useState({
         latitud: -3.997382889382841,
         longitud: -79.20502255221956,
@@ -34,12 +40,27 @@ export default function GpsPage() {
 
     const handleLineas = (event) => setLineas(event.target.value);
     const handleUnidad = (event) => setUnidad(event.target.value);
+    const descargarDatos =async()=>{
+         const aux_data = [];
+                    const querySnapshot = await getDocs(collection(db, "vehicles"));
+                    querySnapshot.forEach((doc) => {
+                        aux_data.push(doc.data());
+                    });
+                    const sortedData = aux_data.sort((a, b) => {
+                        const register_a = parseInt(a.register)
+                        const register_b = parseInt(b.register)
+                        return register_a - register_b;
+                    });
+                    setVehicles(sortedData)
+                    allData.current = sortedData
+        setDownload(false)
+    }
  
     useEffect(() => {
         let unsub;
         if (isConnected) {
           
-            unsub = onSnapshot(doc(db, 'unidades', unidad), (doc) => {     
+            unsub = onSnapshot(doc(db, 'unidades', unidad.uuid), (doc) => {     
                 const data = doc.data();   
                 if (data) {   
                     setTarget({   
@@ -56,6 +77,15 @@ export default function GpsPage() {
     return (
         <Box sx={{ flexGrow: 1,padding:5 }}>
             <Grid container spacing={2}>
+            <Grid size={12}>
+                    <Button
+                        sx={{ height: '100%' }}
+                        variant="contained"
+                        onClick={descargarDatos}                   
+                    >
+                        Descargar
+                    </Button>
+                </Grid>
                 <Grid size={{ xs: 12, md: 3 }}>
                     <FormControl fullWidth>
                         <InputLabel id="lineas-label">Líneas</InputLabel>
@@ -65,6 +95,7 @@ export default function GpsPage() {
                             onChange={handleLineas}
                             size="small"
                             label="Lineas"
+                            disabled={download}
                         >
                             <MenuItem value="L1">L1</MenuItem>
                            
@@ -72,28 +103,27 @@ export default function GpsPage() {
                     </FormControl>
                 </Grid>
                 <Grid size={{ xs: 12, md: 3 }}>
-                    <FormControl
-                        fullWidth
-                        disabled={lineas === '#'}
-                    >
-                        <InputLabel id="unidades-label">Unidad</InputLabel>
-                        <Select
-                            labelId="unidades-label"
-                            value={unidad}
-                            onChange={handleUnidad}
-                            label="Unidad"
-                            size="small"
-                        >
-                            <MenuItem value="rt1505">RT-1505</MenuItem>
-                        </Select>
-                    </FormControl>
+                     <Autocomplete
+                        value={unidad}
+                        onChange={(event, newValue) => {
+                            setUnidad(newValue);
+                        }}
+                        disabled={download}
+                        size='small'
+                        id="controllable-states-demo"
+                        options={vehicles}
+                        getOptionLabel={(option) => option.register}
+                        renderInput={(params) => <TextField {...params} label="Registro" />}
+                        />
                 </Grid>
+               
                 <Grid size={{ xs: 12, md: 2 }}>
                     <Button
                         sx={{ height: '100%' }}
                         variant="contained"
                         onClick={() => setIsConnected(true)}
                         fullWidth
+                        disabled={download === false && connected === true}
                     >
                         Conectar
                     </Button>
@@ -104,6 +134,7 @@ export default function GpsPage() {
                         variant="contained"
                         onClick={() => setIsConnected(false)}
                         fullWidth
+                        disabled={download}
                     >
                         Desconectar
                     </Button>

@@ -16,12 +16,12 @@ import { Stack } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import { v4 as uuidv4 } from 'uuid';
 import { doc, setDoc,updateDoc, collection ,getDocs } from "firebase/firestore"; 
 import { db } from '../../firebase/firebase-config';
+import { useNavigate } from 'react-router';
 import Swal from 'sweetalert2';
 import Menu from '@mui/material/Menu';
 import IconButton from '@mui/material/IconButton';
@@ -30,14 +30,22 @@ import EditIcon from '@mui/icons-material/Edit';
 import BlockIcon from '@mui/icons-material/Block';
 import { styled, alpha } from '@mui/material/styles';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import Skeleton from '@mui/material/Skeleton';
+import Button from '@mui/material/Button';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
+import Autocomplete from '@mui/material/Autocomplete';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export default function VehiculosPage() {
+
     const [dialogVehicle, setDialogVehicle] = useState(false);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [grupo, setGrupo] = useState(1);
-    const [linea, setLinea] = useState(1);
+    const [grupo, setGrupo] = useState(0);
+    const [linea, setLinea] = useState(0);
     const [marca,setMarca] = useState(1);
+    const [empresa,setEmpresa] = useState(0);
     const [carroceria,setCarroceria] = useState(1);
     const [asientos,setAsientos] = useState(0);
     const [chasis,setChasis] = useState('');
@@ -46,12 +54,14 @@ export default function VehiculosPage() {
     const [socio,setSocio] = useState();
     const [vehicles,setVehicles] = useState([]);
     const [socios,setSocios] = useState([]);
+    const [status,setStatus] = useState(0);
     const [habilited,setHabilited] = useState(true);
     const [anchorEl, setAnchorEl] = useState(null);
     const [currentVehicle,setCurrentVehicle] = useState({})
     const [dialogEdit,setDialogEdit] = useState(false);
     const allData = useRef([])
     const open = Boolean(anchorEl);
+    const navigate = useNavigate();
 
     const handleClick = (event,_data) => {
         setAnchorEl(event.currentTarget);
@@ -195,22 +205,174 @@ export default function VehiculosPage() {
             return "no especifico"
         }
     }
+    const filtrarDatos =()=>{
+        const aux_data = JSON.parse(JSON.stringify(allData.current));
+        const filterByGroup = aux_data.filter((item)=> {
+            if(grupo === 0){
+                return(item)
+            }else if(item.group === grupo){
+                return(item)
+            }
+        })
+        const filterByCompany = filterByGroup.filter((item)=> {
+            if(empresa === 0){
+                return(item)
+            }else if(item.company === empresa){
+                return(item)
+            }
+        })
+        const filterByState = filterByCompany.filter((item)=> {
+            if(status === 3){
+                return(item)
+            }else if(status === item.state){
+                return(item)
+            }
+        })
+        const filterberByLine = filterByState.filter((item)=> {
+            if(linea === 0){
+                return(item)
+            }else if(linea === item.line){
+                return(item)
+            }
+        })
+        setVehicles(filterberByLine)
+    }
+    const administrarVehiculo = ()=>{
+        navigate('/administracion/vehiculos');
+
+    }
+
+    const clearFiltros = ()=>{
+        setGrupo(0)
+        setEmpresa(0)
+        setStatus(3)
+        setLinea(0)
+        setVehicles(allData.current)
+    }
    useEffect(() => {
-         
+    getData();
       }, [])
 
     return (
         <>
             <Box sx={{ flexGrow: 1, p: 5 }}>
                 <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 2 }}>
+                    {/* <Grid size={{ xs: 12, md: 2 }}>
                         <button type="button" onClick={getData} className="w-full px-5 py-2.5 text-sm font-medium text-white bg-amber-600 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 rounded-lg text-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">Traer Datos </button>
+                    </Grid> */}
+                    <Grid size={12}>
+                        <Button variant="contained"  onClick={openDialogVehicle} >Agregar Nuevo Vehiculo </Button>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 3 }}>
-                        <button type="button" onClick={openDialogVehicle} hidden={habilited} className="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Agregar Nuevo Vehiculo </button>
+                    <Grid size={{ xs: 12, md: 2}}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-select-small-label">Grupo</InputLabel>
+                            <Select
+                                labelId="demo-select-small-label"
+                                id="demo-select-small"
+                                value={grupo}
+                                label="Grupo"
+                                onChange={(e)=>{setGrupo(e.target.value)}}
+                            >
+                                <MenuItem value={0}>Todos</MenuItem>
+                                <MenuItem value={1}>Grupo 1</MenuItem>
+                                <MenuItem value={2}>Grupo 2</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 2}}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-select-small-label">Empresa</InputLabel>
+                            <Select
+                                labelId="demo-select-small-label"
+                                id="demo-select-small"
+                                value={empresa}
+                                label="Empresa"
+                                onChange={(e)=>{setEmpresa(e.target.value)}}
+                            >
+                                <MenuItem value={0}>Todas las Empresas</MenuItem>
+                                <MenuItem value={1}>URBASUR</MenuItem>
+                                <MenuItem value={2}>URBAEXPRESS</MenuItem>
+                                <MenuItem value={3}>CUXIBAMBA</MenuItem>
+                                <MenuItem value={4}>24 DE MAYO</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 2}}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-select-small-label">Estado</InputLabel>
+                            <Select
+                                labelId="demo-select-small-label"
+                                id="demo-select-small"
+                                value={status}
+                                label="Estado"
+                                onChange={(e)=>{setStatus(e.target.value)}}
+                            >
+                                <MenuItem value={3}>Todos</MenuItem>
+                                <MenuItem value={0}>Inactivos</MenuItem>
+                                <MenuItem value={1}>Activos</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 2}}>
+                    <FormControl fullWidth size="small">
+                            <InputLabel id="demo-select-small-label">Linea</InputLabel>
+                            <Select
+                                labelId="demo-select-small-label"
+                                id="demo-select-small"
+                                value={linea}
+                                label="Linea"
+                                onChange={handleLinea}
+                            >
+                                <MenuItem value={0}>Todas</MenuItem>
+                                <MenuItem value={1}>Linea 1</MenuItem>
+                                <MenuItem value={2}>Linea 2</MenuItem>
+                                <MenuItem value={3}>Linea 3</MenuItem>
+                                <MenuItem value={4}>Linea 4</MenuItem>
+                                <MenuItem value={5}>Linea 5</MenuItem>
+                                <MenuItem value={6}>Linea 6</MenuItem>
+                                <MenuItem value={7}>Linea 7</MenuItem>
+                                <MenuItem value={8}>Linea 8</MenuItem>
+                                <MenuItem value={9}>Linea 9</MenuItem>
+                                <MenuItem value={10}>Linea 10</MenuItem>
+                                <MenuItem value={11}>Linea 11</MenuItem>
+                                <MenuItem value={12}>Linea 12</MenuItem>
+                            </Select>
+                            </FormControl>
+                            </Grid>
+                    <Grid size={{ xs: 12, md: 2}}>
+                        <Button variant="contained" onClick={filtrarDatos} fullWidth startIcon={<FilterAltIcon />}>
+                            Filtrar
+                        </Button>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 2}}>
+                        <Button color='warning'  variant="contained"  onClick={clearFiltros} fullWidth startIcon={<CleaningServicesIcon />}>
+                            Limpiar Filtro
+                        </Button>
                     </Grid>
                     <Grid size={12}>
-                        <div className='p-2'>
+                    <Autocomplete
+                                value={socio}
+                                onChange={(event, newValue) => {
+                                    if (newValue === null) {
+                                    setVehicles(allData.current);
+                                    } else {
+                                    setVehicles([newValue]);
+                                    }
+                                }}
+                                sx={{width:250}}
+                                size='small'
+                                id="controllable-states-demo"
+                                options={allData.current}
+                                getOptionLabel={(option) => option.register.toString()}
+                                renderInput={(params) => <TextField {...params} label="Buscar Unidad" />}
+                            />
+                    </Grid>
+                    <Grid size={12}>
+                    {
+                        habilited?  <Skeleton variant="rounded"  hidden={true} sx={{width:"100%"}} height={640} />:
+                  
+                      
+                        <div hidden={habilited} className='p-2'>
                             <TableContainer sx={{ maxHeight: 640 }}>
                                 <Table stickyHeader aria-label="sticky table">
                                     <TableHead>
@@ -327,8 +489,8 @@ export default function VehiculosPage() {
                                                                         Editar
                                                                     </MenuItem>
                                                                     <MenuItem onClick={handleClose} disableRipple>
-                                                                        <AnalyticsIcon />
-                                                                        Mas Informacion
+                                                                        <SettingsIcon />
+                                                                        Administrar
                                                                     </MenuItem>
                                                                     <MenuItem onClick={handleClose} disableRipple>
                                                                         <BlockIcon />
@@ -355,6 +517,7 @@ export default function VehiculosPage() {
                             />
 
                         </div>
+                    }
                     </Grid>
                 </Grid>
             </Box>

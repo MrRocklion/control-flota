@@ -32,7 +32,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import InfoIcon from '@mui/icons-material/Info';
 import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
-
+import Button from '@mui/material/Button';
 
 export default function PersonalPage() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -189,7 +189,7 @@ export default function PersonalPage() {
             <Box sx={{ flexGrow: 1, p: 5 }}>
                 <Grid container spacing={2}>
                     <Grid size={{ xs: 12, md: 3 }}>
-                        <button type="button" onClick={createSocio} className="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Agregar Nuevo Socio</button>
+                    <Button variant="contained" onClick={createSocio}  >Agregar Nuevo Socio</Button>
                     </Grid>
                     <Grid size={12}>
                         <div className='p-2'>

@@ -55,10 +55,16 @@ export default function TransactionsPage() {
             allData.current = sortedData;
         });
     }
-    const procesarTarjeta =(tipo)=>{
-        if(tipo === 6){
+    const procesarTarjeta =(_type)=>{
+        if(_type === "6"){
             return "Fiscalizador"
-        }else{
+        }else if(_type === "1"){
+            return "Estudiante"
+        }
+        else if(_type === "2"){
+            return "Tercera Edad"
+        }
+        else{
             return "Tarifa General"
         }
 
@@ -71,8 +77,15 @@ export default function TransactionsPage() {
             const [dia, mes, anio] = item.date_card.split('/').map(Number); // Convertir a números
             return dia === day_target && mes === month_target && anio === year_target;
         });
+        const filter_type = data_filtered.filter((item)=>{
+            if(item.type === tipo){
+                return item
+            }else if(tipo === "0"){
+                return item;
+            }
+        })
         setPage(0);
-        setData(data_filtered)
+        setData(filter_type)
     }
 
     const limpiarConsulta = () =>{
@@ -91,14 +104,12 @@ export default function TransactionsPage() {
                             <Grid container spacing={2}>
                                 <Grid size={{ xs: 12, md: 2 }} >
                                     <LocalizationProvider  dateAdapter={AdapterDayjs}>
-
                                         <DatePicker
                                             label="Seleccione la Fecha"
                                             value={date}
                                             onChange={(newValue) => setDate(newValue)}
                                             format="DD-MM-YYYY"
                                         />
-
                                     </LocalizationProvider>
                                 </Grid>
                                
@@ -113,11 +124,31 @@ export default function TransactionsPage() {
                                             label="Tipo de Tarjeta"
                                         >
                                             <MenuItem value="0">Todas</MenuItem>
+                                            <MenuItem value="1">Estudiante</MenuItem>
+                                            <MenuItem value="2">Tercera Edad</MenuItem>
                                             <MenuItem value="3">Especial</MenuItem>
                                             <MenuItem value="6">Fiscalizador</MenuItem>
 
                                         </Select>
                                     </FormControl>
+                                </Grid>
+                                <Grid size={{ xs: 12, md: 2 }} >
+                                    {/* <FormControl fullWidth>
+                                        <InputLabel id="lineas-label">Tipo de Tarjeta</InputLabel>
+                                        <Select
+                                            labelId="lineas-label"
+                                            value={tipo}
+                                            onChange={handleTipo}
+                                            size="normal"
+                                            label="Tipo de Tarjeta"
+                                        >
+                                            <MenuItem value="0">Todas</MenuItem>
+                                            <MenuItem value="1">Estudiante</MenuItem>
+                                            <MenuItem value="2">Tercera Edad</MenuItem>
+                                            <MenuItem value="3">Especial</MenuItem>
+                                            <MenuItem value="6">Fiscalizador</MenuItem>
+                                        </Select>
+                                    </FormControl> */}
                                 </Grid>
                                 <Grid size={{ xs: 12, md: 2 }} >
                                     <Button variant="contained" onClick={filtrarDatos} fullWidth sx={{"height":"100%"}}>Filtrar</Button>

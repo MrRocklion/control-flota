@@ -29,7 +29,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import BlockIcon from '@mui/icons-material/Block';
 import { styled, alpha } from '@mui/material/styles';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import Skeleton from '@mui/material/Skeleton';
 import Button from '@mui/material/Button';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -488,7 +487,7 @@ export default function VehiculosPage() {
                                                                         <EditIcon />
                                                                         Editar
                                                                     </MenuItem>
-                                                                    <MenuItem onClick={handleClose} disableRipple>
+                                                                    <MenuItem onClick={()=>{navigate(`/administracion/vehiculos/${row.uuid}`)}} disableRipple>
                                                                         <SettingsIcon />
                                                                         Administrar
                                                                     </MenuItem>
